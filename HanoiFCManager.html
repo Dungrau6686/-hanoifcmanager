@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hà Nội FC Manager</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+padding:15px;
+margin:0;
+}
+
+.card{
+background:white;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+
+button{
+width:100%;
+padding:12px;
+font-size:16px;
+margin-top:8px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:6px;
+text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>⚽ Hà Nội FC Manager</h2>
+<p>Mùa giải: <span id="season">2026</span></p>
+<p>Tiền: <span id="money">150</span> tỷ</p>
+<p>Điểm: <span id="points">0</span></p>
+</div>
+
+<div class="card">
+<h3>Đội hình chính</h3>
+
+<table>
+<tr>
+<th>Cầu thủ</th>
+<th>OVR</th>
+</tr>
+
+<tbody id="team"></tbody>
+
+</table>
+</div>
+
+<div class="card">
+<h3>Trận đấu</h3>
+
+<button onclick="playMatch()">
+Đá trận tiếp theo
+</button>
+
+<p id="matchResult">
+Chưa thi đấu
+</p>
+</div>
+
+<div class="card">
+<h3>Bảng xếp hạng</h3>
+
+<table>
+<tr>
+<th>CLB</th>
+<th>Điểm</th>
+</tr>
+
+<tbody id="ranking"></tbody>
+
+</table>
+</div>
+
+<script>
+
+let game={
+
+season:2026,
+
+money:150,
+
+points:0,
+
+team:[
+["Văn Hoàng",75],
+["Thành Chung",80],
+["Duy Mạnh",78],
+["Xuân Mạnh",76],
+["Văn Xuân",74],
+["Hùng Dũng",81],
+["Hai Long",78],
+["Văn Trường",75],
+["Tuấn Hải",80],
+["Joao Pedro",79],
+["Văn Tùng",74]
+]
+
+};
+
+const clubs=[
+"Hà Nội FC",
+"CAHN",
+"Nam Định",
+"Viettel",
+"Hải Phòng",
+"Thanh Hóa",
+"SLNA",
+"HAGL",
+"Bình Dương",
+"Đà Nẵng",
+"Quảng Nam",
+"Bình Định",
+"Khánh Hòa",
+"TP.HCM"
+];
+
+function render(){
+
+document.getElementById("money").innerText=game.money;
+
+document.getElementById("points").innerText=game.points;
+
+let html="";
+
+game.team.forEach(p=>{
+html+=`
+<tr>
+<td>${p[0]}</td>
+<td>${p[1]}</td>
+</tr>`;
+});
+
+document.getElementById("team").innerHTML=html;
+
+let rank=[];
+
+clubs.forEach(c=>{
+
+if(c==="Hà Nội FC"){
+
+rank.push({
+name:c,
+pts:game.points
+});
+
+}else{
+
+rank.push({
+name:c,
+pts:Math.floor(Math.random()*20)
+});
+
+}
+
+});
+
+rank.sort((a,b)=>b.pts-a.pts);
+
+let rankHtml="";
+
+rank.forEach(r=>{
+
+rankHtml+=`
+<tr>
+<td>${r.name}</td>
+<td>${r.pts}</td>
+</tr>`;
+
+});
+
+document.getElementById("ranking").innerHTML=rankHtml;
+
+localStorage.setItem(
+"hanoifcmanager",
+JSON.stringify(game)
+);
+
+}
+
+function playMatch(){
+
+let power=0;
+
+game.team.forEach(p=>{
+power+=p[1];
+});
+
+power/=game.team.length;
+
+let opponent=70+Math.random()*15;
+
+if(power>opponent){
+
+game.points+=3;
+game.money+=10;
+
+document.getElementById(
+"matchResult"
+).innerText=
+"🏆 Hà Nội FC chiến thắng";
+
+}else if(power>opponent-3){
+
+game.points+=1;
+
+document.getElementById(
+"matchResult"
+).innerText=
+"🤝 Hà Nội FC hòa";
+
+}else{
+
+document.getElementById(
+"matchResult"
+).innerText=
+"❌ Hà Nội FC thất bại";
+
+}
+
+render();
+
+}
+
+let save=
+localStorage.getItem(
+"hanoifcmanager"
+);
+
+if(save){
+
+game=JSON.parse(save);
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
